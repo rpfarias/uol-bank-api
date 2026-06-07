@@ -15,5 +15,11 @@ public interface AccountRepositoryPort {
 
     Optional<Account> findById(Long id);
 
+    /**
+     * Carrega a conta adquirindo lock pessimista de escrita (PESSIMISTIC_WRITE).
+     * Deve ser chamado dentro de uma transação ativa (ex.: transferência).
+     */
+    Optional<Account> findByIdForUpdate(Long id);
+
     List<Account> findAll();
 }

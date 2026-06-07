@@ -2,6 +2,7 @@ package com.rafaelfarias.uol_bank_api.account.application.service;
 
 import com.rafaelfarias.uol_bank_api.account.application.port.in.CreateAccountUseCase;
 import com.rafaelfarias.uol_bank_api.account.application.port.in.GetAccountUseCase;
+import com.rafaelfarias.uol_bank_api.account.application.port.in.UpdateAccountUseCase;
 import com.rafaelfarias.uol_bank_api.account.application.port.out.AccountRepositoryPort;
 import com.rafaelfarias.uol_bank_api.account.domain.Account;
 import com.rafaelfarias.uol_bank_api.shared.exception.ResourceNotFoundException;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class AccountService implements CreateAccountUseCase, GetAccountUseCase {
+public class AccountService implements CreateAccountUseCase, GetAccountUseCase, UpdateAccountUseCase {
 
     private final AccountRepositoryPort accountRepository;
 
@@ -39,5 +40,16 @@ public class AccountService implements CreateAccountUseCase, GetAccountUseCase {
     @Transactional(readOnly = true)
     public List<Account> getAll() {
         return accountRepository.findAll();
+    }
+
+    @Override
+    public Account loadForUpdate(Long id) {
+        return accountRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Conta " + id + " nao encontrada"));
+    }
+
+    @Override
+    public Account save(Account account) {
+        return accountRepository.save(account);
     }
 }

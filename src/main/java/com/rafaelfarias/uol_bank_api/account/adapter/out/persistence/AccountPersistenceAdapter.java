@@ -30,6 +30,11 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     }
 
     @Override
+    public Optional<Account> findByIdForUpdate(Long id) {
+        return jpaRepository.findByIdForUpdate(id).map(this::toDomain);
+    }
+
+    @Override
     public List<Account> findAll() {
         return jpaRepository.findAll().stream().map(this::toDomain).toList();
     }
