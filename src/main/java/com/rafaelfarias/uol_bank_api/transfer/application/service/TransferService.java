@@ -2,6 +2,7 @@ package com.rafaelfarias.uol_bank_api.transfer.application.service;
 
 import com.rafaelfarias.uol_bank_api.account.application.port.in.UpdateAccountUseCase;
 import com.rafaelfarias.uol_bank_api.account.domain.Account;
+import com.rafaelfarias.uol_bank_api.transfer.application.port.in.FindTransfersUseCase;
 import com.rafaelfarias.uol_bank_api.transfer.application.port.in.TransferFundsUseCase;
 import com.rafaelfarias.uol_bank_api.transfer.application.port.out.TransferEventPublisher;
 import com.rafaelfarias.uol_bank_api.transfer.application.port.out.TransferRepositoryPort;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Orquestra a transferência de fundos garantindo consistência sob concorrência.
@@ -22,7 +24,7 @@ import java.math.BigDecimal;
  */
 @Service
 @RequiredArgsConstructor
-public class TransferService implements TransferFundsUseCase {
+public class TransferService implements TransferFundsUseCase, FindTransfersUseCase {
 
     private final UpdateAccountUseCase accountPort;
     private final TransferRepositoryPort transferRepository;
@@ -54,5 +56,11 @@ public class TransferService implements TransferFundsUseCase {
         // Publicado na transação; a notificação só dispara após o commit (AFTER_COMMIT).
         eventPublisher.publishCompleted(saved);
         return saved;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transfer> findByAccount(Long accountId) {
+        return transferRepository.findByAccountId(accountId);
     }
 }

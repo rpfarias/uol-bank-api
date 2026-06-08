@@ -5,6 +5,8 @@ import com.rafaelfarias.uol_bank_api.transfer.domain.Transfer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * Implementação da porta de saída de transferências com Spring Data JPA.
  */
@@ -17,6 +19,11 @@ public class TransferPersistenceAdapter implements TransferRepositoryPort {
     @Override
     public Transfer save(Transfer transfer) {
         return toDomain(jpaRepository.save(toEntity(transfer)));
+    }
+
+    @Override
+    public List<Transfer> findByAccountId(Long accountId) {
+        return jpaRepository.findByAccount(accountId).stream().map(this::toDomain).toList();
     }
 
     private TransferJpaEntity toEntity(Transfer transfer) {
