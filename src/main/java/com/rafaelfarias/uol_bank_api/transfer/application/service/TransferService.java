@@ -3,6 +3,7 @@ package com.rafaelfarias.uol_bank_api.transfer.application.service;
 import com.rafaelfarias.uol_bank_api.account.application.port.in.UpdateAccountUseCase;
 import com.rafaelfarias.uol_bank_api.account.domain.Account;
 import com.rafaelfarias.uol_bank_api.transfer.application.port.in.TransferFundsUseCase;
+import com.rafaelfarias.uol_bank_api.transfer.application.port.out.TransferEventPublisher;
 import com.rafaelfarias.uol_bank_api.transfer.application.port.out.TransferRepositoryPort;
 import com.rafaelfarias.uol_bank_api.transfer.domain.Transfer;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class TransferService implements TransferFundsUseCase {
 
     private final UpdateAccountUseCase accountPort;
     private final TransferRepositoryPort transferRepository;
+    private final TransferEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -48,6 +50,9 @@ public class TransferService implements TransferFundsUseCase {
         accountPort.save(source);
         accountPort.save(target);
 
-        return transferRepository.save(transfer);
+        Transfer saved = transferRepository.save(transfer);
+        // Publicado na transação; a notificação só dispara após o commit (AFTER_COMMIT).
+        eventPublisher.publishCompleted(saved);
+        return saved;
     }
 }

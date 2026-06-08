@@ -4,6 +4,7 @@ import com.rafaelfarias.uol_bank_api.account.application.port.in.UpdateAccountUs
 import com.rafaelfarias.uol_bank_api.account.domain.Account;
 import com.rafaelfarias.uol_bank_api.shared.exception.BusinessRuleException;
 import com.rafaelfarias.uol_bank_api.shared.exception.ResourceNotFoundException;
+import com.rafaelfarias.uol_bank_api.transfer.application.port.out.TransferEventPublisher;
 import com.rafaelfarias.uol_bank_api.transfer.application.port.out.TransferRepositoryPort;
 import com.rafaelfarias.uol_bank_api.transfer.domain.Transfer;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class TransferServiceTest {
     @Mock
     private TransferRepositoryPort transferRepository;
 
+    @Mock
+    private TransferEventPublisher eventPublisher;
+
     @InjectMocks
     private TransferService transferService;
 
@@ -49,6 +53,7 @@ class TransferServiceTest {
         verify(accountPort).save(source);
         verify(accountPort).save(target);
         verify(transferRepository).save(org.mockito.ArgumentMatchers.any(Transfer.class));
+        verify(eventPublisher).publishCompleted(org.mockito.ArgumentMatchers.any(Transfer.class));
     }
 
     @Test
@@ -64,6 +69,7 @@ class TransferServiceTest {
 
         assertThat(target.getBalance()).isEqualByComparingTo("50.00");
         verify(transferRepository, never()).save(org.mockito.ArgumentMatchers.any());
+        verify(eventPublisher, never()).publishCompleted(org.mockito.ArgumentMatchers.any());
     }
 
     @Test
